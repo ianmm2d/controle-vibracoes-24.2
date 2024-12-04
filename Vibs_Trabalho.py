@@ -82,7 +82,7 @@ k_viga = (12*E*I_viga)/((h + H/2) ** 3)
 k_eq = 4 * k_viga
 
 volume_viga = (d * l * h) #m^3
-massa_vigas = (48/35) * volume_viga * densidade_al # kg
+massa_vigas = 4 * (48/35) * volume_viga * densidade_al # kg
 
 # Parameters
 N = 3
@@ -92,9 +92,9 @@ m_e1 = 646e-3 # kg
 m_e2 = 1187e-3 # kg
 m_e3 = 1635e-3 # kg
 
-m_1 = massa_piso + m_e1 #+ massa_vigas
-m_2 = massa_piso + m_e2 #+ massa_vigas
-m_3 = massa_piso + m_e3 #+ massa_vigas
+m_1 = massa_piso + m_e1 + massa_vigas
+m_2 = massa_piso + m_e2 + massa_vigas
+m_3 = massa_piso + m_e3 + massa_vigas
 
 # Stiffnesses
 k1 = k_eq
@@ -129,20 +129,10 @@ f = np.arange(0, 201, 1)
 w = 2*np.pi*f  # Angular frequency
 
 
-# def mean_absolute_error(measured, predicted):
-#     mae = np.mean(np.abs(np.array(measured) - np.array(predicted)))
-#     return mae
-
 def calcular_mse(curva_exp, curva_sim):
     mse = np.mean((np.array(curva_exp) - np.array(curva_sim))**2)
     return mse
 
-
-# def rSquared(measured,predicted):
-#     estimateError = ((predicted-measured)**2).sum()
-#     meanOfMeasured = measured.sum()/len(measured)
-#     variability = ((measured-meanOfMeasured)**2).sum()
-#     return 1-estimateError/variability
 
 H12 = np.zeros_like(w, dtype=complex)
 x1 = 0  
@@ -194,15 +184,14 @@ def meia_potencia(modo, df, peaks):
     return bandwidths
 
 mse = 1
-#Hm1 = np.zeros((len(w), N), dtype=complex)
-
-# while mse > 1e-2:
-#     i += 1
+Hm1 = np.zeros((len(w), N), dtype=complex)
+Hm2 = np.zeros((len(w), N), dtype=complex)
+Hm3 = np.zeros((len(w), N), dtype=complex)
 
 alpha = 15
 beta = 1e-5
 
-qsi = np.zeros(N)
+qsi1 = np.zeros(N)
 qsi2 = np.zeros(N)
 qsi3 = np.zeros(N)
 
@@ -210,62 +199,63 @@ for j in range(len(w)):
     soma1 = 0
     soma2 = 0
     soma3 = 0
-    #qsi = 0.01
     for k in range(N):
-        bands = meia_potencia(k, df1, peaks1)[k]
-        qsi[k] = (bands[1] - bands[0])/(2*df1['Frequency'][peaks1[k]])
-        # qsi1[k] = meia_potência(k, df1, peaks1)
-        # qsi2[k] = meia_potência2(k)
-        # qsi3[k] = meia_potência3(k)
-        #qsi = (alpha + wi[k]**2*beta)/(2*wi[k])
-        term1 = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
+        bands1 = meia_potencia(k, df1, peaks1)[k]
+        qsi1[k] = (bands1[1] - bands1[0])/(2*df1['Frequency'][peaks1[k]])
+        bands2 = meia_potencia(k, df2, peaks2)[k]
+        qsi2[k] = (bands2[1] - bands2[0])/(2*df2['Frequency'][peaks2[k]])
+        bands3 = meia_potencia(k, df3, peaks3)[k]
+        qsi3[k] = (bands3[1] - bands3[0])/(2*df3['Frequency'][peaks3[k]])
+    
+        term1 = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi1[k] * wi[k] * w[j])
         soma1 += term1
-        #Hm1[j,k] = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi * wi[k]*w[j])
+        Hm1[j,k] = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi1[k] * wi[k]*w[j])
         
-        # term2 = V[x2, k] * V[xf2, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi2[k] * wi[k] * w[j])
-        # soma2 += term2
+        term2 = V[x2, k] * V[xf2, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi2[k] * wi[k] * w[j])
+        soma2 += term2
+        Hm2[j,k] = V[x2, k] * V[xf2, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi2[k] * wi[k]*w[j])
         
-        # term3 = V[x3, k] * V[xf3, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi3[k] * wi[k] * w[j])
-        # soma3 += term3
+        term3 = V[x3, k] * V[xf3, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi3[k] * wi[k] * w[j])
+        soma3 += term3
+        Hm3[j,k] = V[x3, k] * V[xf3, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi3[k] * wi[k]*w[j])
         
     H12[j] = soma1 * w[j]**2
-    H22[j] = soma2
-    H32[j] = soma3
+    H22[j] = soma2 * w[j]**2
+    H32[j] = soma3 * w[j]**2
 
-
-
-#Hm12 = np.abs(Hm1)*w[:, None]**2
+Hm12 = np.abs(Hm1) * w[:, None]**2
+Hm22 = np.abs(Hm2) * w[:, None]**2
+Hm32 = np.abs(Hm3) * w[:, None]**2
+    
 FRF_12 = np.abs(H12)
 FRF_22 = np.abs(H22)
 FRF_32 = np.abs(H32)
 mse = calcular_mse(df1['FRF_abs'][2:120], FRF_12[2:120])
-print(mse)
 
 # Plot the magnitude of H
 plt.figure(1)
 plt.semilogy(w[2:120], FRF_12[2:120], 'k', linewidth=2)
 plt.semilogy(df1['Frequency'][2:120], df1['FRF_abs'][2:120], linewidth=2)
-#plt.semilogy(w, teste)
 plt.grid()
 plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
 plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=20)
 plt.show()
 
-# plt.figure(2)
-# plt.semilogy(w[2:120], FRF_22[2:120], 'k', linewidth=2)
-# plt.semilogy(df2['Frequency'][2:120], df2['FRF_abs'][2:120], linewidth=2)
-# plt.grid()
-# plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
-# plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=20)
-# plt.show()
+plt.figure(2)
+plt.semilogy(w[2:120], FRF_22[2:120], 'k', linewidth=2)
+plt.semilogy(df2['Frequency'][2:120], df2['FRF_abs'][2:120], linewidth=2)
+plt.grid()
+plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
+plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=20)
+plt.show()
 
-# plt.figure(3)
-# plt.semilogy(w[2:120], FRF_32[2:120], 'k', linewidth=2)
-# plt.semilogy(df3['Frequency'][2:120], df3['FRF_abs'][2:120], linewidth=2)
-# plt.grid()
-# plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
-# plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=20)
-# plt.show()
+plt.figure(3)
+plt.semilogy(w[2:120], FRF_32[2:120], 'k', linewidth=2)
+plt.semilogy(df3['Frequency'][2:120], df3['FRF_abs'][2:120], linewidth=2)
+plt.grid()
+plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
+plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=20)
+plt.show()
 
 # # Plot the phase of H
 # plt.figure(2)
@@ -275,18 +265,39 @@ plt.show()
 # plt.ylabel(r'$\phi_{ij}(\omega)$ [rad]', fontsize=20)
 # plt.show()
 
-# #Plot magnitude of individual mode responses
-# plt.figure(3)
-# #plt.semilogy(w, FRF_12[:,1], '--r', linewidth=2, label='Mode 1')
-# plt.semilogy(w, Hm12[:, 0], '--g', linewidth=2, label='Mode 1')
-# plt.semilogy(w, Hm12[:, 1], '--r', linewidth=2, label='Mode 2')
-# plt.semilogy(w, Hm12[:, 2], '--b', linewidth=2, label='Mode 3')
-# plt.semilogy(w, FRF_12, 'k', linewidth=2, label='Total')
-# plt.grid()
-# plt.xlabel(r'$\omega$ [rad/s]', fontsize=14)
-# plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=14)
-# plt.legend()
-# plt.show()
+#Plot magnitude of individual mode responses
+plt.figure(4)
+plt.semilogy(w, Hm12[:, 0], '--g', linewidth=2, label='Mode 1')
+plt.semilogy(w, Hm12[:, 1], '--r', linewidth=2, label='Mode 2')
+plt.semilogy(w, Hm12[:, 2], '--b', linewidth=2, label='Mode 3')
+plt.semilogy(w, FRF_12, 'k', linewidth=2, label='Total')
+plt.grid()
+plt.xlabel(r'$\omega$ [rad/s]', fontsize=14)
+plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=14)
+plt.legend()
+plt.show()
+
+plt.figure(5)
+plt.semilogy(w, Hm22[:, 0], '--g', linewidth=2, label='Mode 1')
+plt.semilogy(w, Hm22[:, 1], '--r', linewidth=2, label='Mode 2')
+plt.semilogy(w, Hm22[:, 2], '--b', linewidth=2, label='Mode 3')
+plt.semilogy(w, FRF_22, 'k', linewidth=2, label='Total')
+plt.grid()
+plt.xlabel(r'$\omega$ [rad/s]', fontsize=14)
+plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=14)
+plt.legend()
+plt.show()
+
+plt.figure(6)
+plt.semilogy(w, Hm32[:, 0], '--g', linewidth=2, label='Mode 1')
+plt.semilogy(w, Hm32[:, 1], '--r', linewidth=2, label='Mode 2')
+plt.semilogy(w, Hm32[:, 2], '--b', linewidth=2, label='Mode 3')
+plt.semilogy(w, FRF_32, 'k', linewidth=2, label='Total')
+plt.grid()
+plt.xlabel(r'$\omega$ [rad/s]', fontsize=14)
+plt.ylabel(r'$|H_{ij}(\omega)|$', fontsize=14)
+plt.legend()
+plt.show()
 
 # # Frequency response for different damping ratios
 # qsi1 = 0.01
