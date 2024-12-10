@@ -33,7 +33,7 @@ font = font_manager.FontProperties(family='serif',
 
 
 #Dataframes
-df1 = pd.read_csv('Medição Livre 6, Signal 2.csv', header=17, sep=";", decimal=',')
+df1 = pd.read_csv('data/etapa_2/Medição Livre 6, Signal 2.csv', header=17, sep=";", decimal=',')
 df1.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df1 = df1.apply(pd.to_numeric, errors='coerce')
@@ -43,7 +43,7 @@ df1['Frequency'] = df1['Frequency']*2*np.pi
 df1["FRF_pos"] = df1['FRF_abs']/(df1['Frequency']**2)
 
 
-df2 = pd.read_csv('Medição Livre 6, Signal 3.csv', header=17, sep=";", decimal=',')
+df2 = pd.read_csv('data/etapa_2/Medição Livre 6, Signal 3.csv', header=17, sep=";", decimal=',')
 df2.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df2 = df2.apply(pd.to_numeric, errors='coerce')
@@ -53,7 +53,7 @@ df2['Frequency'] = df2['Frequency']*2*np.pi
 df2["FRF_pos"] = df2['FRF_abs']/(df2['Frequency']**2)
 
 
-df3 = pd.read_csv('Medição Livre 6, Signal 4.csv', header=17, sep=";", decimal=',')
+df3 = pd.read_csv('data/etapa_2/Medição Livre 6, Signal 4.csv', header=17, sep=";", decimal=',')
 df3.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df3 = df3.apply(pd.to_numeric, errors='coerce')
@@ -97,7 +97,7 @@ def meia_potencia(df, peaks):
         if w1 is not None and w2 is not None:
             bandwidths.append((w1,w2))
         else:
-            bandwidths.append((df1['Frequency'][22], df1['Frequency'][28]))    
+            bandwidths.append((df1['Frequency'][peak_idx + (peak_idx-i)], df1['Frequency'][i]))   
     return bandwidths
 
 
@@ -169,8 +169,8 @@ massa_vigas = 4 * (48/35) * volume_viga * densidade_al # kg
 N = 4
 
 # Massas
-m_b = massa_piso+ massa_vigas
-m_1 = massa_piso+ massa_vigas
+m_b = massa_piso
+m_1 = massa_piso +  massa_vigas
 m_2 = massa_piso + massa_vigas
 m_3 = massa_piso + massa_vigas
 

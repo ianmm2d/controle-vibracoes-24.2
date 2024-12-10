@@ -34,7 +34,7 @@ font = font_manager.FontProperties(family='serif',
 
 
 #Dataframes
-df1 = pd.read_csv('Grupo - 3 9, Signal 2.csv', header=17, sep=";", decimal=',')
+df1 = pd.read_csv('data/etapa_1/Grupo - 3 9, Signal 2.csv', header=17, sep=";", decimal=',')
 df1.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df1 = df1.apply(pd.to_numeric, errors='coerce')
@@ -44,7 +44,7 @@ df1['Frequency'] = df1['Frequency']*2*np.pi
 df1["FRF_pos"] = df1['FRF_abs']/(df1['Frequency']**2)
 
 
-df2 = pd.read_csv('Grupo - 3 9, Signal 3.csv', header=17, sep=";", decimal=',')
+df2 = pd.read_csv('data/etapa_1/Grupo - 3 9, Signal 3.csv', header=17, sep=";", decimal=',')
 df2.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df2 = df2.apply(pd.to_numeric, errors='coerce')
@@ -53,7 +53,7 @@ df2['Frequency'][0] = 1
 df2['Frequency'] = df2['Frequency']*2*np.pi
 df2["FRF_pos"] = df2['FRF_abs']/(df2['Frequency']**2)
 
-df3 = pd.read_csv('Grupo - 3 9, Signal 4.csv', header=17, sep=";", decimal=',')
+df3 = pd.read_csv('data/etapa_1/Grupo - 3 9, Signal 4.csv', header=17, sep=";", decimal=',')
 df3.rename(columns = {"'": 'Frequency', '(m/s^2)/N': 'FRF_real', '(m/s^2)/N.1': 'FRF_imag'}, 
            inplace = True)
 df3 = df3.apply(pd.to_numeric, errors='coerce')
@@ -100,37 +100,37 @@ def meia_potencia(df, peaks):
             
     return bandwidths
 
-# def func_erro(qsi, df_1, df_2, df_3, wi, V, w):
-#     for j in range(len(w)):
-#         soma1 = 0
-#         soma2 = 0
-#         soma3 = 0
-#         for k in range(N):
-#             term1 = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
-#             soma1 += term1            
+def func_erro(qsi, df_1, df_2, df_3, wi, V, w):
+    for j in range(len(w)):
+        soma1 = 0
+        soma2 = 0
+        soma3 = 0
+        for k in range(N):
+            term1 = V[x1, k] * V[xf1, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
+            soma1 += term1            
             
-#             term2 = V[x2, k] * V[xf2, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
-#             soma2 += term2
+            term2 = V[x2, k] * V[xf2, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
+            soma2 += term2
             
-#             term3 = V[x3, k] * V[xf3, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
-#             soma3 += term3
+            term3 = V[x3, k] * V[xf3, k] / (wi[k]**2 - w[j]**2 + 1j * 2 * qsi[k] * wi[k] * w[j])
+            soma3 += term3
                         
-#         H12_ot[j] = soma1
-#         H22_ot[j] = soma2
-#         H32_ot[j] = soma3
+        H12_ot[j] = soma1
+        H22_ot[j] = soma2
+        H32_ot[j] = soma3
         
-#     FRF_12_ot = np.abs(H12_ot)
-#     FRF_22_ot = np.abs(H22_ot)
-#     FRF_32_ot = np.abs(H32_ot)
-#     func_erro.FRF_12_ot = FRF_12_ot
-#     func_erro.FRF_22_ot = FRF_22_ot
-#     func_erro.FRF_32_ot = FRF_32_ot
+    FRF_12_ot = np.abs(H12_ot)
+    FRF_22_ot = np.abs(H22_ot)
+    FRF_32_ot = np.abs(H32_ot)
+    func_erro.FRF_12_ot = FRF_12_ot
+    func_erro.FRF_22_ot = FRF_22_ot
+    func_erro.FRF_32_ot = FRF_32_ot
 
-#     ssi1_ot = calculate_ssi(df1['FRF_pos'][2:], FRF_12_ot[2:])
-#     ssi2_ot = calculate_ssi(df2['FRF_pos'][2:], FRF_22_ot[2:])
-#     ssi3_ot = calculate_ssi(df3['FRF_pos'][2:], FRF_32_ot[2:])
+    ssi1_ot = calculate_ssi(df1['FRF_pos'][5:], FRF_12_ot[5:])
+    ssi2_ot = calculate_ssi(df2['FRF_pos'][5:], FRF_22_ot[5:])
+    ssi3_ot = calculate_ssi(df3['FRF_pos'][5:], FRF_32_ot[5:])
     
-#     return -(ssi1_ot+ssi2_ot+ssi3_ot)/3
+    return -(ssi1_ot+ssi2_ot+ssi3_ot)/3
 
 
 # Propriedades do Material
@@ -279,19 +279,19 @@ FRF_32 = np.abs(H32)
 
 
 #Cálculo das similaridades
-ssi1 = calculate_ssi(df1['FRF_pos'], FRF_12)
-ssi2 = calculate_ssi(df2['FRF_pos'], FRF_22)
-ssi3 = calculate_ssi(df3['FRF_pos'], FRF_32)
+ssi1 = calculate_ssi(df1['FRF_pos'][5:], FRF_12[5:])
+ssi2 = calculate_ssi(df2['FRF_pos'][5:], FRF_22[5:])
+ssi3 = calculate_ssi(df3['FRF_pos'][5:], FRF_32[5:])
 print((ssi1+ssi2+ssi3)/3)
 
 
-# #Otimização
-# res = minimize(func_erro, qsi_banda, args=(df1, df2, df3, wi, V, w), method='L-BFGS-B', bounds=[(0, 1)] * N)
-# print(res.fun*-1)
-# qsi_otimizado = res.x
-# FRF_12_otimizado = func_erro.FRF_12_ot
-# FRF_22_otimizado = func_erro.FRF_22_ot
-# FRF_32_otimizado = func_erro.FRF_32_ot
+#Otimização
+res = minimize(func_erro, qsi_banda, args=(df1, df2, df3, wi, V, w), method='L-BFGS-B', bounds=[(0, 1)] * N)
+print(res.fun*-1)
+qsi_otimizado = res.x
+FRF_12_otimizado = func_erro.FRF_12_ot
+FRF_22_otimizado = func_erro.FRF_22_ot
+FRF_32_otimizado = func_erro.FRF_32_ot
 
 
 #Autevetores
@@ -318,7 +318,7 @@ plt.show()
 
 # # Plot da FRF_22
 plt.figure(2)
-# plt.semilogy(w[2:], FRF_22_otimizado[2:], '--r', linewidth=2, label = 'Otimizado')
+plt.semilogy(w[5:], FRF_22_otimizado[5:], '--r', linewidth=2, label = 'Otimizado')
 plt.semilogy(w[5:], FRF_22[5:], '--k', linewidth=2, label= 'Modelo')
 plt.semilogy(df2['Frequency'][5:], df2['FRF_pos'][5:], '--b', linewidth=2, label = 'Experimental')
 plt.grid()
@@ -330,7 +330,7 @@ plt.show()
 
 # # Plot da FRF_32
 plt.figure(3)
-# plt.semilogy(w[2:], FRF_32_otimizado[2:], '--r', linewidth=2, label = 'Otimizado')
+plt.semilogy(w[5:], FRF_32_otimizado[5:], '--r', linewidth=2, label = 'Otimizado')
 plt.semilogy(w[5:], FRF_32[5:], '--k', linewidth=2, label= 'Modelo')
 plt.semilogy(df3['Frequency'][5:], df3['FRF_pos'][5:], '--b', linewidth=2, label = 'Experimental')
 plt.grid()
@@ -338,7 +338,6 @@ plt.xlabel(r'$\omega$ [rad/s]', fontsize=20)
 plt.ylabel(r'$|H_{32}(\omega)|$', fontsize=20)
 plt.legend()
 plt.show()
-
 
 # # Plot dos Modos na FRF12
 # plt.figure(4)
